@@ -96,11 +96,23 @@ def convDerivative(in_image: np.ndarray) -> (np.ndarray, np.ndarray):
 # First, we will define the kernel as required
     kernel = np.array([[1, 0, -1]])
 # To compute the directions, we will
+    xDirection= conv2D(in_image, kernel)
+    yDirection= conv2D(in_image,kernel.T)
+    directions = np.arctan2(yDirection, xDirection)
 
-# Now , to compute the magnitude, we will use the formulla as we learned in class:
+    #############################
+    # kernel1 = np.array([[0, 0, 0], [-1, 0, 1], [0, 0, 0]])
+    # kernel2 = kernel1.transpose()
+    # x_der = conv2D(inImage, kernel1)
+    # y_der = conv2D(inImage, kernel2)
+    # directrions = np.arctan(y_der, x_der)
+    # mangitude = np.sqrt(np.square(x_der) + np.square(y_der))
+    ################################
+# Now , to compute the magnitude, we will use the formula as we learned in class:
+    #Magnitude=square_root((Change in the X-axis)^2+(Change in the Y-axis)^2)
+    magnitude=math.sqrt(xDirection**2+ yDirection**2)
 
-
-    return
+    return directions, magnitude
 
 
 def blurImage1(in_image: np.ndarray, k_size: int) -> np.ndarray:
@@ -110,6 +122,13 @@ def blurImage1(in_image: np.ndarray, k_size: int) -> np.ndarray:
     :param k_size: Kernel size
     :return: The Blurred image
     """
+# I used the website: https://quick-adviser.com/what-is-sigma-in-gaussian-filter/
+# How do you set the Sigma in Gaussian filter?
+# The rule of thumb for Gaussian filter design is to choose the filter size to be about 3 times the standard deviation
+# (sigma value) in each direction, for a total filter size of approximately 6*sigma rounded to an odd integer value.
+
+# Basically, what we actually need to do is to use the convolution function, by sending the in_image we have , and
+    (in_image: np.ndarray, kernel: np.ndarray)
 
     return
 
