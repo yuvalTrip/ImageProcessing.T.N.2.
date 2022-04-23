@@ -1,7 +1,6 @@
 from ex2_utils import *
 import matplotlib.pyplot as plt
 import time
-import numpy as np
 
 
 def MSE(a: np.ndarray, b: np.ndarray) -> float:
@@ -153,13 +152,13 @@ def biliteralFilterDemo():
 
 
 def main():
-    conv1Demo()
-    conv2Demo()
-    derivDemo()
-    blurDemo()
+    # conv1Demo()
+    #conv2Demo()
+    #derivDemo()
+    #blurDemo()
     edgeDemo()
-    houghDemo()
-    biliteralFilterDemo()
+    # houghDemo()
+    # biliteralFilterDemo()
 
 
 if __name__ == '__main__':
