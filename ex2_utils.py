@@ -192,7 +192,7 @@ def blurImage2(in_image: np.ndarray, k_size: int) -> np.ndarray:
     sigma = 1#0.3 * ((k_size - 1) * 0.5 - 1) + 0.8
     #by using pythons internal function 'getGaussianKernel', we will creates Gaussian kernel
     gaussian_kernel=cv2.getGaussianKernel(k_size,sigma)
-    # by using pythons internal function 'filter2D', we will apply the gaussian_kernel on the image
+    # by using pythons internal function 'filter2D', we will apply the gaussian_kernel on the image (like conv2D function)
     return cv2.filter2D(in_image, -1, gaussian_kernel, borderType=cv2.BORDER_REPLICATE)
 
 def edgeDetectionZeroCrossingSimple(img: np.ndarray) -> np.ndarray:
@@ -201,15 +201,19 @@ def edgeDetectionZeroCrossingSimple(img: np.ndarray) -> np.ndarray:
     :param img: Input image
     :return: Edge matrix
     """
-    #I did not chose to implement this function, but i want to wrote it in case i will need it ,
-    # therefore I put it in comment
-    # by using: http://portal.survey.ntua.gr/main/labs/rsens/DeCETI/IRIT/GIS-IMPROVING/node18.html
-    # we will define the laplacian kernel by using pythons internal function:
-    laplacian_kernel = cv2.Laplacian()# this is the following array: ([[0, 1, 0],[1, -4, 1],[0, 1, 0]])
-    conv_img = conv2D(img, laplacian_kernel) #Apply the laplacian_kernel on the input image
-    # find the edges in conv_img
-    edgeMat= find_crossing_zero(conv_img)
-    return edgeMat
+    pass
+    # #I did not chose to implement this function, but i want to wrote it in case i will need it ,
+    # # therefore I put it in comment
+    # # by using: http://portal.survey.ntua.gr/main/labs/rsens/DeCETI/IRIT/GIS-IMPROVING/node18.html
+    # # we will define the laplacian kernel by using pythons internal function:
+    # laplacian_kernel =  np.array([[0, 1, 0],[1, -4, 1],[0, 1, 0]])
+    # # by using pythons internal function 'filter2D', we will apply the laplacian_kernel on the input image (like conv2D function)
+    # conv_img = cv2.filter2D(img, -1, laplacian_kernel, borderType=cv2.BORDER_REPLICATE)
+    #
+    # #conv_img = conv2D(img, laplacian_kernel) #Apply the laplacian_kernel on the input image
+    # # find the edges in conv_img
+    # edgeMat= find_crossing_zero(conv_img)
+    # return edgeMat
 
 
 
@@ -221,11 +225,19 @@ def edgeDetectionZeroCrossingLOG(img: np.ndarray) -> np.ndarray:
     """
     #by using: https://www.youtube.com/watch?v=uNP6ZwQ3r6A&t=202s
    #we will define the laplacian kernel by using pythons internal function:
-    laplacian_kernel=cv2.Laplacian()  # this is the following array: ([[0, 1, 0],[1, -4, 1],[0, 1, 0]])
+
+    laplacian_kernel=np.array([[0, 1, 0],[1, -4, 1],[0, 1, 0]])#cv2.Laplacian()  # this is the following array: ([[0, 1, 0],[1, -4, 1],[0, 1, 0]])
     # we will find the gauss kernel by using k_size we found by trying various values
     gauss_Kernel = gaussKernel(15)
-    gaussian_laplacian = conv2D(gauss_Kernel, laplacian_kernel)
-    conv_img = conv2D(img, gaussian_laplacian)#Apply the laplacian gaussian kernel on the input image
+
+    # by using pythons internal function 'filter2D', we will apply the laplacian_kernel on the gauss_Kernel (like conv2D function)
+    gaussian_laplacian=cv2.filter2D(gauss_Kernel, -1, laplacian_kernel, borderType=cv2.BORDER_REPLICATE)
+    #gaussian_laplacian = conv2D(gauss_Kernel, laplacian_kernel)
+
+    # by using pythons internal function 'filter2D', we will apply the laplacian_kernel on the input image (like conv2D function)
+    conv_img = cv2.filter2D(img, -1, gaussian_laplacian, borderType=cv2.BORDER_REPLICATE)
+
+    #conv_img = conv2D(img, gaussian_laplacian)#Apply the laplacian gaussian kernel on the input image
     # find the edges in conv_img
     edgeMat=find_crossing_zero(conv_img)
     return edgeMat
@@ -248,36 +260,41 @@ def find_crossing_zero(img: np.ndarray) -> np.ndarray:
                     ((img[i, j - 1] > 0 and img[i, j + 1] < 0) or (img[i, j - 1] < 0 and img[i, j + 1] > 0))):
                 # we will define this cell in edge matrix as 1
                 edgeMat[i,j]=1
-
+#More conditions to find zero crossing:
             elif img[i, j] < 0:
                 if img[i - 1, j] > 0:
                     edgeMat[i - 1, j] = 1
-                elif img[i + 1, j] > 0:
-                    edgeMat[i + 1, j] = 1
                 elif img[i, j - 1] > 0:
                     edgeMat[i, j - 1] = 1
+                elif img[i + 1, j] > 0:
+                    edgeMat[i + 1, j] = 1
                 elif img[i, j + 1] > 0:
                     edgeMat[i, j + 1] = 1
-
+# One last condition to find zero crossing:
             elif img[i, j] > 0:
-                if ((img[i - 1, j] < 0 or img[i + 1, j] < 0)
-                        or (img[i, j - 1] < 0 or img[i, j + 1] < 0)):
+                if ((img[i - 1, j] < 0 or img[i + 1, j] < 0) or (img[i, j - 1] < 0 or img[i, j + 1] < 0)):
                     edgeMat[i, j] = 1
 # return the matrix of edges where the pixel that represent zero crossing will be 1 and pixel that does not will be 0
     return edgeMat
 
-    # def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:
-    # """
-    # Find Circles in an image using a Hough Transform algorithm extension
-    # To find Edges you can Use OpenCV function: cv2.Canny
-    # :param img: Input image
-    # :param min_radius: Minimum circle radius
-    # :param max_radius: Maximum circle radius
-    # :return: A list containing the detected circles,
-    #             [(x,y,radius),(x,y,radius),...]
-    # """
-    #
-    # return
+def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:
+    """
+        Find Circles in an image using a Hough Transform algorithm extension
+        To find Edges you can Use OpenCV function: cv2.Canny
+        :param img: Input image
+        :param min_radius: Minimum circle radius
+        :param max_radius: Maximum circle radius
+        :return: A list containing the detected circles,
+                    [(x,y,radius),(x,y,radius),...]
+    """
+    # Using OpenCV Canny Edge detector to detect edges
+    # The arguments are: (Source/Input image, the High threshold value of intensity gradient,the Low threshold value of intensity gradient)
+    edged_image = cv2.Canny(img, 75, 150)
+    x = 1
+    circle_list=[]
+    return circle_list
+
+
 
 
 # def bilateral_filter_implement(in_image: np.ndarray, k_size: int, sigma_color: float, sigma_space: float) -> (
