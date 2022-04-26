@@ -276,7 +276,7 @@ def find_crossing_zero(img: np.ndarray) -> np.ndarray:
                     edgeMat[i, j] = 1
 # return the matrix of edges where the pixel that represent zero crossing will be 1 and pixel that does not will be 0
     return edgeMat
-
+#
 def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:
     """
         Find Circles in an image using a Hough Transform algorithm extension
@@ -287,11 +287,41 @@ def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:
         :return: A list containing the detected circles,
                     [(x,y,radius),(x,y,radius),...]
     """
+
     # Using OpenCV Canny Edge detector to detect edges
     # The arguments are: (Source/Input image, the High threshold value of intensity gradient,the Low threshold value of intensity gradient)
-    edged_image = cv2.Canny(img, 75, 150)
-    x = 1
+    edged_image = cv2.Canny(np.uint8(img*255), 60, 150) #canny function demands normlized values between 0-255
+    cv2.imshow("", edged_image)
+    cv2.waitKey(0)
+    #Initial an 3D matrix of zeros
+    circle_counter = np.zeros((edged_image.shape[0], edged_image.shape[1], max_radius - min_radius+1))
+    #Initial list of circles we will return at the end , every parameter will be (x_center,Ycenter,radius)
     circle_list=[]
+    k = 0 ##############################delete
+    # We will take the size of the image
+    height, width = img.shape[:2]
+    # We will move over all pixels in image
+    for i in range(1, height - 1):
+        for j in range(1, width - 1):
+            #If there is edge in specific cell
+            if edged_image[i,j]==255:
+                for teta in range(0,361):
+                    for radius in range(min_radius,max_radius):
+#we will compute the center of the circle (h,k) by using the formulla: (x - h)**2 + (y - k)**2 = r**2
+                        x_center=j-(radius* np.sin((teta * math.pi)/180 )) #polar coordinate for center (convert to radians)
+                        y_center=i-(radius* np.cos((teta * math.pi)/180)) #polar coordinate for center (convert to radians)
+                        if (x_center<0 or y_center<0):#if one of the values is negative, we will ignore from it
+                            continue
+                        circle_counter[np.uint8(np.round(x_center)),np.uint8(np.round(y_center)),radius-min_radius] +=1 #voting for this circle in circle_counter matrix
+                        print (radius)
+        # if the point > threshold=20  it marked as an center of circle
+    for r in range(circle_counter.shape[2]):
+        for x in range(0, img.shape[0]):
+            for y in range(0, img.shape[1]):
+                if circle_counter[x, y, r] > 20:
+                    circle_list.append((x, y, min_radius + r))
+                    print((x, y, min_radius + r))
+    x=1
     return circle_list
 
 
