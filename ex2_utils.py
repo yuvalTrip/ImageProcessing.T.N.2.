@@ -2,7 +2,14 @@ import math
 import numpy as np
 import cv2
 
-
+def myID() -> np.int:
+    """
+    Return my ID (not the friend's ID I copied from)
+    :return: int
+    """
+    return 318916335
+#Helpful links I used:
+# https://docs.opencv.org/4.x/d4/d13/tutorial_py_filtering.html
 def conv1D(in_signal: np.ndarray, k_size: np.ndarray) -> np.ndarray:
     """
     Convolve a 1-D array with a given kernel
@@ -288,53 +295,164 @@ def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:
                     [(x,y,radius),(x,y,radius),...]
     """
 
+#     # Using OpenCV Canny Edge detector to detect edges
+#     # The arguments are: (Source/Input image, the High threshold value of intensity gradient,the Low threshold value of intensity gradient)
+#     edged_image = cv2.Canny(np.uint8(img*255), 200,400)#60, 150) #canny function demands normlized values between 0-255
+#     edged_image=edged_image/255
+#     #cv2.imshow("", edged_image)
+#     #cv2.waitKey(0)
+
+
+#     #Initial an 3D matrix of zeros
+#     circle_counter = np.zeros((img.shape[0], img.shape[1], max_radius - min_radius+1))
+#     #Initial list of circles we will return at the end , every parameter will be (x_center,Ycenter,radius)
+#     circle_list=[]
+#     Allx=[]
+#     Ally=[]
+#     # We will take the size of the image
+#     height, width = img.shape[:2]
+#     # We will move over all pixels in image
+
+#     # for y in range(0, height-1):
+#     #     for x in range(0, width-1):
+#     for x in range(edged_image.shape[0]):
+#         for y in range(edged_image.shape[1]):
+#             #If there is edge in specific cell
+#             if edged_image[x,y]==1:#255:
+#                 for teta in range(0,361):
+#                     for radius in range(min_radius,max_radius):
+#                         x_center=x-(radius* np.sin((teta * math.pi)/180 )) #polar coordinate for center (convert to radians)
+#                         y_center=y-(radius* np.cos((teta * math.pi)/180)) #polar coordinate for center (convert to radians)
+#                         Allx.append(x_center)
+#                         Ally.append(y_center)
+#                         if (x_center>=0 and y_center>=0):
+#                             try:
+#                             # x_center<img.shape[0] and y_center<img.shape[1]):#if one of the values is negative, we will ignore it
+#                                 circle_counter[np.uint8(np.round(x_center)),np.uint8(np.round(y_center)),radius-min_radius] +=1 #voting for this circle in circle_counter matrix
+#                             except Exception:
+#                                 continue
+#
+#                         #print (radius)
+#         # if the point > threshold=20  it marked as an center of circle
+#     for r in range(circle_counter.shape[2]):
+#         for x in range(0, img.shape[0]):
+#             for y in range(0, img.shape[1]):
+#                 if circle_counter[x, y, r] >= 26:
+#                     circle_list.append((x, y, min_radius + r))
+#                     #print((x, y, min_radius + r))
+#     return circle_list
     # Using OpenCV Canny Edge detector to detect edges
     # The arguments are: (Source/Input image, the High threshold value of intensity gradient,the Low threshold value of intensity gradient)
-    edged_image = cv2.Canny(np.uint8(img*255), 60, 150) #canny function demands normlized values between 0-255
-    cv2.imshow("", edged_image)
-    cv2.waitKey(0)
+
+    edged_image = cv2.Canny(np.uint8(img * 255), 200, 400)
+    edged_image = edged_image / 255
+
     #Initial an 3D matrix of zeros
-    circle_counter = np.zeros((edged_image.shape[0], edged_image.shape[1], max_radius - min_radius+1))
-    #Initial list of circles we will return at the end , every parameter will be (x_center,Ycenter,radius)
-    circle_list=[]
-    k = 0 ##############################delete
-    # We will take the size of the image
-    height, width = img.shape[:2]
+    circle_counter = np.zeros((img.shape[0], img.shape[1], max_radius - min_radius + 1))
+
     # We will move over all pixels in image
-    for i in range(1, height - 1):
-        for j in range(1, width - 1):
+    for x in range(edged_image.shape[0]):
+        for y in range(edged_image.shape[1]):
             #If there is edge in specific cell
-            if edged_image[i,j]==255:
-                for teta in range(0,361):
-                    for radius in range(min_radius,max_radius):
-#we will compute the center of the circle (h,k) by using the formulla: (x - h)**2 + (y - k)**2 = r**2
-                        x_center=j-(radius* np.sin((teta * math.pi)/180 )) #polar coordinate for center (convert to radians)
-                        y_center=i-(radius* np.cos((teta * math.pi)/180)) #polar coordinate for center (convert to radians)
-                        if (x_center<0 or y_center<0):#if one of the values is negative, we will ignore from it
-                            continue
-                        circle_counter[np.uint8(np.round(x_center)),np.uint8(np.round(y_center)),radius-min_radius] +=1 #voting for this circle in circle_counter matrix
-                        print (radius)
-        # if the point > threshold=20  it marked as an center of circle
-    for r in range(circle_counter.shape[2]):
-        for x in range(0, img.shape[0]):
-            for y in range(0, img.shape[1]):
-                if circle_counter[x, y, r] > 20:
-                    circle_list.append((x, y, min_radius + r))
-                    print((x, y, min_radius + r))
-    x=1
-    return circle_list
+                if edged_image[x][y] == 1:
+                 for teta in range(360):
+                    sinTeta = np.sin(np.deg2rad(teta)) #polar coordinate for center (convert to radians)- x values
+                    cosTeta = np.cos(np.deg2rad(teta)) #polar coordinate for center (convert to radians)- y values
+                # now we will calculate the parameters of the circle
+                    for radius in range(min_radius, max_radius):
+                        yCenter = y - (radius * sinTeta)
+                        xCenter = x - (radius * cosTeta)
+                        if xCenter > 0 and yCenter > 0:
+                            try:
+                                circle_counter[int(np.round(xCenter))][int(np.round(yCenter))][radius - min_radius] += 1  #voting for this circle in circle_counter matrix
+                            except Exception:#if one of the values is negative, we will ignore it
+                                continue
+# Now we will select circles by treshold,
+# and create list of circles we will return at the end , every parameter will be (x_center,Ycenter,radius)
+    mostVote = np.argwhere(circle_counter >= (np.max(circle_counter) - np.max(circle_counter) * 0.32))  # take the 30% most voted
+    mostVote = mostVote[:, [1, 0, 2]]
+    mostVote[:, 2] += min_radius  # put the original radiuses of the circles
+
+    return list(map(tuple, mostVote))
 
 
 
+def bilateral_filter_implement(in_image: np.ndarray, k_size: int, sigma_color: float, sigma_space: float) -> (
+        np.ndarray, np.ndarray):
+    """
+    :param in_image: input image
+    :param k_size: Kernel size
+    :param sigma_color: represents the filter sigma in the color space.
+    :param sigma_space: represents the filter sigma in the coordinate.
+    :return: OpenCV implementation, my implementation
+    """
+    #I inspired by using this github:
+    #https://github.com/anlcnydn/bilateral/blob/25b238f42cee6dad13a3e834d5fdd3860a456aa3/bilateral_filter.py#L40
+    open_cv_implement=cv2.bilateralFilter(in_image, k_size, sigma_color, sigma_space)
+    #The 'image' 'np.array' must be given gray-scale. It is suggested that to use OpenCV.??????????????????
+    #my_implement
+    bilateralIm=np.zeros(in_image.shape)
+    mid_k=k_size/2
+    padIm=np.pad(in_image,((k_size//2,k_size//2), (k_size//2,k_size//2)),mode="edge")
+    #Iterate over all pixels in image
+    for x in range ((k_size//2), padIm.shape[0]- k_size//2):
+        for y in range ((k_size//2),padIm.shape[1]-k_size//2):
+            sumOfNumerator=0
+            sumOfDenominator=0
+            for kernelX in range (-(k_size//2), (k_size//2)+1):
+                for kernelY in range (-(k_size//2), (k_size//2)+1):
+                    gauss_c=gaussian(distance((x,y),(x+kernelX,y+kernelY)),sigma_color)
+                    gauss_s=gaussian(abs(padIm[x+kernelX][y+kernelY]-padIm[x][y]),sigma_space)
+                    sumOfNumerator=sumOfNumerator+(gauss_s*gauss_c*padIm[x+kernelX][y+kernelY])
+                    sumOfDenominator=sumOfDenominator+(gauss_s*gauss_c)
 
-# def bilateral_filter_implement(in_image: np.ndarray, k_size: int, sigma_color: float, sigma_space: float) -> (
-#         np.ndarray, np.ndarray):
-#     """
-#     :param in_image: input image
-#     :param k_size: Kernel size
-#     :param sigma_color: represents the filter sigma in the color space.
-#     :param sigma_space: represents the filter sigma in the coordinate.
-#     :return: OpenCV implementation, my implementation
-#     """
+            bilateralIm[x-(k_size//2),y-(k_size//2)]=np.round(sumOfNumerator/sumOfDenominator).astype(int)
+    my_implement=bilateralIm
+
+    return open_cv_implement,my_implement
+
+def gaussian(x, sigma):
+    return (1.0 / (2 * math.pi * (sigma ** 2))) * math.exp(- (x ** 2) / (2 * sigma ** 2))
+
+#     filtered_image = np.zeros(in_image.shape)
+#     i = 0
+#     while i < len(in_image):
+#         j = 0
+#         while j < len(in_image[0]):
+#             ApplyBilateralFilter(in_image, filtered_image, i, j, k_size, sigma_color, sigma_space)
+#             j += 1
+#         i += 1
+#     my_implement=filtered_image
+#     return open_cv_implement,my_implement
 #
-#     return
+#
+# def ApplyBilateralFilter(in_image: np.ndarray, filtered_image, x, y,  k_size: int,sigma_color: float, sigma_space: float):
+#     #def apply_bilateral_filter(source, filtered_image, x, y, diameter, sigma_i, sigma_s):
+#
+#     #(in_image: np.ndarray, k_size: int, sigma_color: float, sigma_space: float) -> (np.ndarray, np.ndarray):
+#     hl = k_size/2
+#     i_filtered = 0
+#     Wp = 0
+#     i = 0
+#     while i < k_size:
+#         j = 0
+#         while j < k_size:
+#             neighbour_x = x - (hl - i)
+#             neighbour_y = y - (hl - j)
+#             if neighbour_x >= len(in_image):
+#                 neighbour_x -= len(in_image)
+#             if neighbour_y >= len(in_image[0]):
+#                 neighbour_y -= len(in_image[0])
+#             gi = gaussian(in_image[neighbour_x][neighbour_y] - in_image[x][y], sigma_color)
+#             gs = gaussian(distance(neighbour_x, neighbour_y, x, y), sigma_space)
+#             w = gi * gs
+#             i_filtered += in_image[neighbour_x][neighbour_y] * w
+#             Wp += w
+#             j += 1
+#         i += 1
+#     i_filtered = i_filtered / Wp
+#     filtered_image[x][y] = int(round(i_filtered))
+#
+
+def distance(point1, point2):
+    return np.sqrt((point1[0]-point2[0])**2 + (point1[1]-point2[1])**2)
