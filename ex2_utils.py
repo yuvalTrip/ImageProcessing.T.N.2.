@@ -120,18 +120,6 @@ def blurImage1(in_image: np.ndarray, k_size: int) -> np.ndarray:
     ans=cv2.filter2D(in_image,-1,gauss_kernel, borderType=cv2.BORDER_REPLICATE)#apply 2D convolution on the Input image with the gaussian kernel we found
     return ans
 
-
-# def createGaussianKer(kernel_size):
-#     center=(int)(kernel_size/2)
-#     kernel=np.zeros((kernel_size,kernel_size))
-#     for i in range(kernel_size):
-#        for j in range(kernel_size):
-#           diff=np.sqrt((i-center)**2+(j-center)**2)
-#           kernel[i,j]=np.exp(-(diff**2)/(2))
-#           kernel[i,j]=np.exp(-(diff**2)/(2*math.pi)) #defoltive sigma equal to 1 , so there is no need to put it here
-#
-#     return kernel/np.sum(kernel)
-
 def gaussKernel(k_size: int) -> np.ndarray:
     """
     :param k_size: Kernel size
@@ -294,11 +282,11 @@ def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:
                                 continue
 # Now we will select circles by treshold,
 # and create list of circles we will return at the end , every parameter will be (x_center,Ycenter,radius)
-    mostVote = np.argwhere(circle_counter >= (np.max(circle_counter) - np.max(circle_counter) * 0.32))  # take the 30% most voted
-    mostVote = mostVote[:, [1, 0, 2]]
-    mostVote[:, 2] += min_radius  # put the original radiuses of the circles
+    mostVoted = np.argwhere(circle_counter >= (np.max(circle_counter) - np.max(circle_counter) * 0.32))  # take the 30% most voted
+    mostVoted = mostVoted[:, [1, 0, 2]]
+    mostVoted[:, 2] += min_radius  # put the original radiuses of the circles
 
-    return list(map(tuple, mostVote))
+    return list(map(tuple, mostVoted))
 
 
 
