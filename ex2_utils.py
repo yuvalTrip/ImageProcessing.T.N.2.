@@ -48,7 +48,7 @@ def flipped_mat(kernel: np.ndarray) -> np.ndarray:
     i = 0
     for row in kernel:
         row = np.flip(row)  # for example : [1,2,3]->[3,2,1]
-        print(row)
+        #print(row)
         kernel[i] = row
         i = i + 1
     # now transpose
@@ -95,33 +95,15 @@ def convDerivative(in_image: np.ndarray) -> (np.ndarray, np.ndarray):
     :param in_image: Grayscale image
     :return: (directions, magnitude)
     """
-# # As we learned, an image gradient is a directional change in the intensity or color in an image
-#
-# # First, we will define the kernel as required
-#     kernel = np.array([[1, 0, -1]])
-# # To compute the directions, we will
-#     xDirection= conv2D(in_image, kernel)
-#     yDirection= conv2D(in_image,kernel.T) # send the transpose of the kernel array
-#     directions = np.arctan2(yDirection, xDirection)
-
-    #############################
-    # kernel1 = np.array([[0, 0, 0], [-1, 0, 1], [0, 0, 0]])
-    # kernel2 = kernel1.transpose()
-    # x_der = conv2D(inImage, kernel1)
-    # y_der = conv2D(inImage, kernel2)
-    # directrions = np.arctan(y_der, x_der)
-    # mangitude = np.sqrt(np.square(x_der) + np.square(y_der))
-    ################################
-# Now , to compute the magnitude, we will use the formula as we learned in class:
-#     #Magnitude=square_root((Change in the X-axis)^2+(Change in the Y-axis)^2)
-#     magnitude=math.sqrt(xDirection**2+ yDirection**2)
-
+# As we learned, an image gradient is a directional change in the intensity or color in an image
+    #We will strat by compute the directions:
     # apply conv2D on in_image with kernel [-1,0,1]
     x_der=cv2.filter2D(in_image,-1,np.array([-1,0,1]), borderType=cv2.BORDER_REPLICATE)
     # apply conv2D on in_image with kernel [[-1],[0],[1]]
     y_der=cv2.filter2D(in_image,-1,np.array([[-1],[0],[1]]), borderType=cv2.BORDER_REPLICATE)
+    #Compute the Magnitude:=square_root((Change in the X-axis)^2+(Change in the Y-axis)^2)
     magnitude = np.sqrt(np.square(x_der) + np.square(y_der))
-    directions = np.arctan(y_der/ x_der)
+    directions = np.arctan2(y_der, x_der)
 
     return directions, magnitude
 
@@ -133,39 +115,22 @@ def blurImage1(in_image: np.ndarray, k_size: int) -> np.ndarray:
     :param k_size: Kernel size
     :return: The Blurred image
     """
-    # gaussian = gaussKernel(k_size) #send the kernel size to get a row of the binomial coefficients.
-    # ans= conv2D(in_image, gaussian) #apply 2D convolution on the Input image with the gaussian kernel we found
-
-    # sigma = int(round(0.3 * ((k_size - 1) * 0.5 - 1) + 0.8))
-    # kernel = createGaussianKer(k_size, sigma)
-    # ans= conv2D(in_image, kernel)
-    # return ans
-
-    # sig = 0.3 * ((k_size - 1) * 0.5 - 1) + 0.8
-    # ax = np.linspace(-(k_size - 1) / 2., (k_size - 1) / 2., k_size)
-    # xx, yy = np.meshgrid(ax, ax)
-    # kernel = np.exp(-0.5 * (np.square(xx) + np.square(yy)) / np.square(sig))
-    # img = conv2D(in_image, kernel)
-    # return img
-
-    sigma = 1#int(round(0.3 * ((k_size - 1) * 0.5 - 1) + 0.8))
-    #gauss_kernel = createGaussianKer(k_size)
-    gauss_kernel= gaussKernel(k_size)
+    gauss_kernel= gaussKernel(k_size)#send the kernel size to get a row of the binomial coefficients.
     # apply conv2D on in_image with gauss_kernel
-    ans=cv2.filter2D(in_image,-1,gauss_kernel, borderType=cv2.BORDER_REPLICATE)
+    ans=cv2.filter2D(in_image,-1,gauss_kernel, borderType=cv2.BORDER_REPLICATE)#apply 2D convolution on the Input image with the gaussian kernel we found
     return ans
 
 
-def createGaussianKer(kernel_size):
-    center=(int)(kernel_size/2)
-    kernel=np.zeros((kernel_size,kernel_size))
-    for i in range(kernel_size):
-       for j in range(kernel_size):
-          diff=np.sqrt((i-center)**2+(j-center)**2)
-          kernel[i,j]=np.exp(-(diff**2)/(2))
-          kernel[i,j]=np.exp(-(diff**2)/(2*math.pi)) #defoltive sigma equal to 1 , so there is no need to put it here
-
-    return kernel/np.sum(kernel)
+# def createGaussianKer(kernel_size):
+#     center=(int)(kernel_size/2)
+#     kernel=np.zeros((kernel_size,kernel_size))
+#     for i in range(kernel_size):
+#        for j in range(kernel_size):
+#           diff=np.sqrt((i-center)**2+(j-center)**2)
+#           kernel[i,j]=np.exp(-(diff**2)/(2))
+#           kernel[i,j]=np.exp(-(diff**2)/(2*math.pi)) #defoltive sigma equal to 1 , so there is no need to put it here
+#
+#     return kernel/np.sum(kernel)
 
 def gaussKernel(k_size: int) -> np.ndarray:
     """
@@ -195,8 +160,9 @@ def blurImage2(in_image: np.ndarray, k_size: int) -> np.ndarray:
     # How do you set the Sigma in Gaussian filter?
     # The rule of thumb for Gaussian filter design is to choose the filter size to be about 3 times the standard deviation
     # (sigma value) in each direction, for a total filter size of approximately 6*sigma rounded to an odd integer value.
-    #Therefore:
-    sigma = 1#0.3 * ((k_size - 1) * 0.5 - 1) + 0.8
+    #Therefore it sopposed to be: sigma = 0.3 * ((k_size - 1) * 0.5 - 1) + 0.8
+    #BUT in tirgul we learned that we can choose sigma as 1, such as defoltieve value
+    sigma = 1
     #by using pythons internal function 'getGaussianKernel', we will creates Gaussian kernel
     gaussian_kernel=cv2.getGaussianKernel(k_size,sigma)
     # by using pythons internal function 'filter2D', we will apply the gaussian_kernel on the image (like conv2D function)
@@ -283,7 +249,7 @@ def find_crossing_zero(img: np.ndarray) -> np.ndarray:
                     edgeMat[i, j] = 1
 # return the matrix of edges where the pixel that represent zero crossing will be 1 and pixel that does not will be 0
     return edgeMat
-#
+
 def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:
     """
         Find Circles in an image using a Hough Transform algorithm extension
@@ -294,58 +260,15 @@ def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:
         :return: A list containing the detected circles,
                     [(x,y,radius),(x,y,radius),...]
     """
-
-#     # Using OpenCV Canny Edge detector to detect edges
-#     # The arguments are: (Source/Input image, the High threshold value of intensity gradient,the Low threshold value of intensity gradient)
-#     edged_image = cv2.Canny(np.uint8(img*255), 200,400)#60, 150) #canny function demands normlized values between 0-255
-#     edged_image=edged_image/255
-#     #cv2.imshow("", edged_image)
-#     #cv2.waitKey(0)
-
-
-#     #Initial an 3D matrix of zeros
-#     circle_counter = np.zeros((img.shape[0], img.shape[1], max_radius - min_radius+1))
-#     #Initial list of circles we will return at the end , every parameter will be (x_center,Ycenter,radius)
-#     circle_list=[]
-#     Allx=[]
-#     Ally=[]
-#     # We will take the size of the image
-#     height, width = img.shape[:2]
-#     # We will move over all pixels in image
-
-#     # for y in range(0, height-1):
-#     #     for x in range(0, width-1):
-#     for x in range(edged_image.shape[0]):
-#         for y in range(edged_image.shape[1]):
-#             #If there is edge in specific cell
-#             if edged_image[x,y]==1:#255:
-#                 for teta in range(0,361):
-#                     for radius in range(min_radius,max_radius):
-#                         x_center=x-(radius* np.sin((teta * math.pi)/180 )) #polar coordinate for center (convert to radians)
-#                         y_center=y-(radius* np.cos((teta * math.pi)/180)) #polar coordinate for center (convert to radians)
-#                         Allx.append(x_center)
-#                         Ally.append(y_center)
-#                         if (x_center>=0 and y_center>=0):
-#                             try:
-#                             # x_center<img.shape[0] and y_center<img.shape[1]):#if one of the values is negative, we will ignore it
-#                                 circle_counter[np.uint8(np.round(x_center)),np.uint8(np.round(y_center)),radius-min_radius] +=1 #voting for this circle in circle_counter matrix
-#                             except Exception:
-#                                 continue
-#
-#                         #print (radius)
-#         # if the point > threshold=20  it marked as an center of circle
-#     for r in range(circle_counter.shape[2]):
-#         for x in range(0, img.shape[0]):
-#             for y in range(0, img.shape[1]):
-#                 if circle_counter[x, y, r] >= 26:
-#                     circle_list.append((x, y, min_radius + r))
-#                     #print((x, y, min_radius + r))
-#     return circle_list
     # Using OpenCV Canny Edge detector to detect edges
     # The arguments are: (Source/Input image, the High threshold value of intensity gradient,the Low threshold value of intensity gradient)
 
     edged_image = cv2.Canny(np.uint8(img * 255), 200, 400)
-    edged_image = edged_image / 255
+    edged_image = edged_image / 255 #normlize the values to be 0 or 1
+
+    #display the image
+    #cv2.imshow("", edged_image)
+    #cv2.waitKey(0)
 
     #Initial an 3D matrix of zeros
     circle_counter = np.zeros((img.shape[0], img.shape[1], max_radius - min_radius + 1))
@@ -355,13 +278,15 @@ def houghCircle(img: np.ndarray, min_radius: int, max_radius: int) -> list:
         for y in range(edged_image.shape[1]):
             #If there is edge in specific cell
                 if edged_image[x][y] == 1:
+            #we will check for each angle
                  for teta in range(360):
-                    sinTeta = np.sin(np.deg2rad(teta)) #polar coordinate for center (convert to radians)- x values
-                    cosTeta = np.cos(np.deg2rad(teta)) #polar coordinate for center (convert to radians)- y values
+                    y_teta = np.sin(np.deg2rad(teta)) #polar coordinate for center (convert to radians)- x values
+                    x_teta = np.cos(np.deg2rad(teta)) #polar coordinate for center (convert to radians)- y values
                 # now we will calculate the parameters of the circle
+                    #we will check for each radius in the given range
                     for radius in range(min_radius, max_radius):
-                        yCenter = y - (radius * sinTeta)
-                        xCenter = x - (radius * cosTeta)
+                        yCenter = y - (radius * y_teta)
+                        xCenter = x - (radius * x_teta)
                         if xCenter > 0 and yCenter > 0:
                             try:
                                 circle_counter[int(np.round(xCenter))][int(np.round(yCenter))][radius - min_radius] += 1  #voting for this circle in circle_counter matrix

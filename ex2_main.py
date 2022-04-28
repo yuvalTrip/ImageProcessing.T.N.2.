@@ -92,6 +92,7 @@ def edgeDemoSimple():
     ax[0].set_title("Ori")
     ax[1].set_title("Edge")
     ax[0].imshow(img)
+    print(edge_matrix)
     ax[1].imshow(edge_matrix)
     plt.show()
 
@@ -110,7 +111,7 @@ def edgeDemoLOG():
 
 
 def edgeDemo():
-    edgeDemoSimple()
+    #edgeDemoSimple()
     edgeDemoLOG()
 
 
@@ -162,12 +163,12 @@ def biliteralFilterDemo():
 def main():
     print("ID:", myID())
     # conv1Demo()
-    # conv2Demo()
-    # derivDemo()
+    #conv2Demo()
+    derivDemo()
     # blurDemo()
-    # edgeDemo()
+    #edgeDemo()
     #houghDemo()
-    biliteralFilterDemo()
+    #biliteralFilterDemo()
 
 
 if __name__ == '__main__':
