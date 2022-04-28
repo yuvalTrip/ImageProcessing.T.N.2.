@@ -391,8 +391,9 @@ def bilateral_filter_implement(in_image: np.ndarray, k_size: int, sigma_color: f
     open_cv_implement=cv2.bilateralFilter(in_image, k_size, sigma_color, sigma_space)
     #The 'image' 'np.array' must be given gray-scale. It is suggested that to use OpenCV.??????????????????
     #my_implement
+    #First we will create new matrix for the bilateral filtered image
     bilateralIm=np.zeros(in_image.shape)
-    mid_k=k_size/2
+
     padIm=np.pad(in_image,((k_size//2,k_size//2), (k_size//2,k_size//2)),mode="edge")
     #Iterate over all pixels in image
     for x in range ((k_size//2), padIm.shape[0]- k_size//2):
@@ -403,6 +404,7 @@ def bilateral_filter_implement(in_image: np.ndarray, k_size: int, sigma_color: f
                 for kernelY in range (-(k_size//2), (k_size//2)+1):
                     gauss_c=gaussian(distance((x,y),(x+kernelX,y+kernelY)),sigma_color)
                     gauss_s=gaussian(abs(padIm[x+kernelX][y+kernelY]-padIm[x][y]),sigma_space)
+                    #Sum the Numerator and the Denominator as we learned in class (by the formula in Lecture 2, Slide 130)
                     sumOfNumerator=sumOfNumerator+(gauss_s*gauss_c*padIm[x+kernelX][y+kernelY])
                     sumOfDenominator=sumOfDenominator+(gauss_s*gauss_c)
 
@@ -412,47 +414,19 @@ def bilateral_filter_implement(in_image: np.ndarray, k_size: int, sigma_color: f
     return open_cv_implement,my_implement
 
 def gaussian(x, sigma):
+    """
+    Function compute Ws(p) and Wc(p) according to the formuls we learned in Lecture 2, Slide 130
+    :param x:given vector
+    :param sigma: given sigma
+    :return:I'(x) in single iteration
+    """
     return (1.0 / (2 * math.pi * (sigma ** 2))) * math.exp(- (x ** 2) / (2 * sigma ** 2))
 
-#     filtered_image = np.zeros(in_image.shape)
-#     i = 0
-#     while i < len(in_image):
-#         j = 0
-#         while j < len(in_image[0]):
-#             ApplyBilateralFilter(in_image, filtered_image, i, j, k_size, sigma_color, sigma_space)
-#             j += 1
-#         i += 1
-#     my_implement=filtered_image
-#     return open_cv_implement,my_implement
-#
-#
-# def ApplyBilateralFilter(in_image: np.ndarray, filtered_image, x, y,  k_size: int,sigma_color: float, sigma_space: float):
-#     #def apply_bilateral_filter(source, filtered_image, x, y, diameter, sigma_i, sigma_s):
-#
-#     #(in_image: np.ndarray, k_size: int, sigma_color: float, sigma_space: float) -> (np.ndarray, np.ndarray):
-#     hl = k_size/2
-#     i_filtered = 0
-#     Wp = 0
-#     i = 0
-#     while i < k_size:
-#         j = 0
-#         while j < k_size:
-#             neighbour_x = x - (hl - i)
-#             neighbour_y = y - (hl - j)
-#             if neighbour_x >= len(in_image):
-#                 neighbour_x -= len(in_image)
-#             if neighbour_y >= len(in_image[0]):
-#                 neighbour_y -= len(in_image[0])
-#             gi = gaussian(in_image[neighbour_x][neighbour_y] - in_image[x][y], sigma_color)
-#             gs = gaussian(distance(neighbour_x, neighbour_y, x, y), sigma_space)
-#             w = gi * gs
-#             i_filtered += in_image[neighbour_x][neighbour_y] * w
-#             Wp += w
-#             j += 1
-#         i += 1
-#     i_filtered = i_filtered / Wp
-#     filtered_image[x][y] = int(round(i_filtered))
-#
-
 def distance(point1, point2):
+    """
+    Function compute distance between 2 points.
+    :param point1: (x1,y1)
+    :param point2: (x2,y2)
+    :return: distance
+    """
     return np.sqrt((point1[0]-point2[0])**2 + (point1[1]-point2[1])**2)
